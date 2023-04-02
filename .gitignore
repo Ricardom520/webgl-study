@@ -1,0 +1,9 @@
+node_modules/*
+.bin/
+output/*
+dist/*
+.sass-cache/
+.idea/
+config.mine.js
+build/
+
