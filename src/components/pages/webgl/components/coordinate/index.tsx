@@ -26,7 +26,7 @@ const Coordinate: React.FC = () => {
     const program = initShader(gl, vertexShaderSource, fragShaderSource)
 
     if (!program) return
-  
+
     // 获取顶点着色器的位置变量apos
     const apolocation = gl.getAttribLocation(program, 'apos')
     
@@ -56,6 +56,8 @@ const Coordinate: React.FC = () => {
 
     gl.shaderSource(vertexShader, vertexShaderSource)
     gl.shaderSource(fragmentShader, fragmentShaderSource)
+    gl.compileShader(vertexShader)
+    gl.compileShader(fragmentShader)
 
     const program = gl.createProgram()
 
