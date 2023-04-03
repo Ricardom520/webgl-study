@@ -11,7 +11,7 @@ const Cricle: React.FC = () => {
         gl_Position = a_Position;
       }
     `
-    
+
     // 片元着色器
     const FRAGMENT_SHADER_SOURCE = `
       void main() {
@@ -31,10 +31,10 @@ const Cricle: React.FC = () => {
     const r = 0.5
 
     for (let i = 0; i <= N; i++) {
-      const theta = i * 2 * Math.PI / N
+      const theta = (i * 2 * Math.PI) / N
       const x = r * Math.sin(theta)
       const y = r * Math.cos(theta)
-      
+
       vertexData.push(x, y)
     }
     console.log('vertexData:', vertexData)
@@ -46,7 +46,11 @@ const Cricle: React.FC = () => {
     gl?.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 2)
   }
 
-  const initShaders = (gl: ExtendWebGl, vertexShaderSource: string, fragmentShaderSource: string) => {
+  const initShaders = (
+    gl: ExtendWebGl,
+    vertexShaderSource: string,
+    fragmentShaderSource: string
+  ) => {
     const program = createProgram(gl, vertexShaderSource, fragmentShaderSource)
 
     if (!program) {
@@ -62,7 +66,7 @@ const Cricle: React.FC = () => {
 
   const initVertexBuffers = (gl: ExtendWebGl, vertices: ArrayBuffer) => {
     const vertexBuffer = gl.createBuffer()
-    
+
     if (!vertexBuffer) {
       console.log('Failed to create buffer object')
       return
@@ -107,7 +111,11 @@ const Cricle: React.FC = () => {
     return shader
   }
 
-  const createProgram = (gl: ExtendWebGl, vertexShaderSource: string, fragmentShaderSource: string) => {
+  const createProgram = (
+    gl: ExtendWebGl,
+    vertexShaderSource: string,
+    fragmentShaderSource: string
+  ) => {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
 
@@ -146,9 +154,7 @@ const Cricle: React.FC = () => {
     init()
   }, [])
 
-  return (
-    <canvas width={100} height={100} id='canvas'/>
-  )
+  return <canvas width={100} height={100} id='canvas' />
 }
 
 export default Cricle
