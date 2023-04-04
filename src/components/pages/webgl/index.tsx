@@ -4,6 +4,8 @@ import Triangle from './components/triangle'
 import Coordinate from './components/coordinate'
 import Rectangle from './components/triangle'
 import Point from './components/point'
+import Translate from './components/translate'
+import Cube from './components/cube'
 import styles from './index.module.less'
 
 const WebGl: React.FC = () => {
@@ -18,9 +20,13 @@ const WebGl: React.FC = () => {
         {/** 三角形 */}
         {/* <Triangle /> */}
         {/** 坐标系 */}
-        <Coordinate/>
+        {/* <Coordinate/> */}
         {/** 矩形 */}
         {/* <Rectangle /> */}
+        {/** 平移 */}
+        {/* <Translate /> */}
+        {/** 立方体 */}
+        <Cube />
       </div>
     </div>
   )
