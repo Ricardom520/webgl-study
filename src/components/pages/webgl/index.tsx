@@ -6,6 +6,7 @@ import Rectangle from './components/triangle'
 import Point from './components/point'
 import Translate from './components/translate'
 import Cube from './components/cube'
+import Varying from './components/varying'
 import styles from './index.module.less'
 
 const WebGl: React.FC = () => {
@@ -26,7 +27,9 @@ const WebGl: React.FC = () => {
         {/** 平移 */}
         {/* <Translate /> */}
         {/** 立方体 */}
-        <Cube />
+        {/* <Cube /> */}
+        {/** 光栅化 */}
+        <Varying />
       </div>
     </div>
   )
