@@ -7,6 +7,8 @@ import Point from './components/point'
 import Translate from './components/translate'
 import Cube from './components/cube'
 import Varying from './components/varying'
+import Texture from './components/texture'
+import Matrix from './components/matrix'
 import styles from './index.module.less'
 
 const WebGl: React.FC = () => {
@@ -29,7 +31,11 @@ const WebGl: React.FC = () => {
         {/** 立方体 */}
         {/* <Cube /> */}
         {/** 光栅化 */}
-        <Varying />
+        {/* <Varying /> */}
+        {/** 纹理 */}
+        {/* <Texture /> */}
+        {/** 三维视图 */}
+        <Matrix />
       </div>
     </div>
   )
