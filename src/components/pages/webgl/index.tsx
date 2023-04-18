@@ -9,6 +9,7 @@ import Cube from './components/cube'
 import Varying from './components/varying'
 import Texture from './components/texture'
 import Matrix from './components/matrix'
+import ThreeMotion from './components/3dmotion'
 import styles from './index.module.less'
 
 const WebGl: React.FC = () => {
@@ -35,7 +36,9 @@ const WebGl: React.FC = () => {
         {/** 纹理 */}
         {/* <Texture /> */}
         {/** 三维视图 */}
-        <Matrix />
+        {/* <Matrix /> */}
+        {/** 键盘控制三维视图 */}
+        <ThreeMotion />
       </div>
     </div>
   )
