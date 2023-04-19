@@ -10,23 +10,32 @@ const ThreeMotion: React.FC = () => {
   const g_eyeZ = 0.25
 
   const init = () => {
+    // 顶点着色器
     const vertexShaderSource = `
+      // 声明attribute变量a_Position,用来存放顶点位置信息
       attribute vec4 a_Position;
       attribute vec4 a_Color;
+      // 声明uniform变量u_ViewMatrix,用来存放视图矩阵
       uniform mat4 u_ViewMatrix;
+      // 声明varying变量v_Color,用来向片元着色器传值顶点颜色信息
       varying vec4 v_Color;
-      
+
       void main() {
+        // 将视图矩阵与顶点坐标相乘赋值给顶点着色器内置变量gl_Position
         gl_Position = u_ViewMatrix * a_Position;
+        // 将顶点颜色信息传给片元着色器
         v_Color = a_Color;
       }
     `
 
+    // 片元着色器
     const fragShaderSource = `
       #ifdef GL_ES
         // 设置精度
         precision mediump float;
       #endif
+      
+      // 声明varying变量v_Color，用来接收订单着色器传送的片元颜色信息
       varying vec4 v_Color;
 
       void main() {
@@ -39,8 +48,7 @@ const ThreeMotion: React.FC = () => {
     const gl = canvas.getContext('webgl') as ExtendWebGl
 
     if (!initShader(gl, vertexShaderSource, fragShaderSource)) {
-      alert('Failed to init shaders')
-
+      console.log('初始化着色器失败')
       return
     }
 
@@ -53,7 +61,7 @@ const ThreeMotion: React.FC = () => {
     // 初始化顶点坐标和顶点颜色
     const n = initVertexBuffers(gl)
 
-    // 获取顶点着色器uniform变量u_ViewMatrix的存储地址
+    // // 获取顶点着色器uniform变量u_ViewMatrix的存储地址
     const u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix')
 
     if (!u_ViewMatrix) {
@@ -68,7 +76,7 @@ const ThreeMotion: React.FC = () => {
     viewMatrix.setLookAt(0.2, 0.25, 0.25, 0, 0, 0, 0, 1, 0)
 
     // 将视图矩阵传给顶点着色器uniform变量u_ViewMatrix
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elments)
+    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements)
 
     // 绘制三角形
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n)
@@ -114,7 +122,7 @@ const ThreeMotion: React.FC = () => {
     viewMatrix.setLookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0)
 
     // 将视图矩阵传给顶点着色器uniform变量u_ViewMatrix
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elments)
+    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements)
 
     gl.clear(gl.COLOR_BUFFER_BIT)
 
@@ -168,7 +176,7 @@ const ThreeMotion: React.FC = () => {
     init()
   }, [])
 
-  return <canvas width={100} height={100} id='canvas' />
+  return <canvas width={300} height={300} id='canvas' />
 }
 
 export default ThreeMotion
