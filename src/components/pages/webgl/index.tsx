@@ -10,6 +10,8 @@ import Varying from './components/varying'
 import Texture from './components/texture'
 import Matrix from './components/matrix'
 import ThreeMotion from './components/3dmotion'
+import ColorCude from './components/colorCude'
+import TransitionCude from './components/transitionCude'
 import styles from './index.module.less'
 
 const WebGl: React.FC = () => {
@@ -38,7 +40,11 @@ const WebGl: React.FC = () => {
         {/** 三维视图 */}
         {/* <Matrix /> */}
         {/** 键盘控制三维视图 */}
-        <ThreeMotion />
+        {/* <ThreeMotion /> */}
+        {/** 颜色立方体 */}
+        {/* <ColorCude /> */}
+        {/** 过渡色立方体 */}
+        <TransitionCude />
       </div>
     </div>
   )
