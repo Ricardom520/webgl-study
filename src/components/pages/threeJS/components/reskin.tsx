@@ -8,6 +8,7 @@ import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { AnimationClip, Camera, Group } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 interface THEModal {
   animations: AnimationClip
@@ -22,11 +23,16 @@ interface THEModal {
   userData: Record<string, string>
 }
 
+interface TraverseEvent extends THREE.Event {
+  isMesh?: boolean
+}
+
 const Reskin: React.FC = () => {
   let renderer: THREE.WebGLRenderer | null = null
   let scene: THREE.Scene | null = null
   let camera: THREE.PerspectiveCamera | null = null
   let theModel = null
+  let controls: any = null
 
   // camera的距离
   const cameraFar = 5
@@ -45,12 +51,26 @@ const Reskin: React.FC = () => {
     // Init the renderer
     // 创建一个 WebGLRenderer，传入 canvas 和选项参数（抗齿距，使 3D 模型的边缘更光滑）。
     renderer = new THREE.WebGLRenderer({ canvas, antialias: false })
+    renderer.shadowMap.enabled = true
+    renderer.setPixelRatio(1)
     document.body.appendChild(renderer.domElement)
 
     // 这是一个透视摄像机，其参数为 50 视场（field of view，fov），宽高比和默认的裁剪区域。裁剪区域指定了可视区域的前后边界。
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
     camera.position.z = cameraFar
     camera.position.x = 0
+
+    // 材质
+    const INITIAL_MTL = new THREE.MeshPhongMaterial({ color: 0xf1f1f1, shininess: 10 })
+    // 将材质的数据结构声明为一个数组
+    // 再次遍历 3D 模型（的组成元素），并使用 childID 查找椅子的不同部分，然后设置相应材质（mtl 属性）。模型每个元素的名字都是在 Blender 中设置的
+    const INITIAL_MAP = [
+      { childID: 'back', mtl: INITIAL_MTL },
+      { childID: 'base', mtl: INITIAL_MTL },
+      { childID: 'cushions', mtl: INITIAL_MTL },
+      { childID: 'legs', mtl: INITIAL_MTL },
+      { childID: 'supports', mtl: INITIAL_MTL }
+    ]
 
     // 加载模型文件
     const loader = new GLTFLoader()
@@ -61,12 +81,23 @@ const Reskin: React.FC = () => {
         if (!scene) return
         theModel = gltf.scene
 
+        theModel.traverse((o: TraverseEvent) => {
+          if (o.isMesh) {
+            o.castShadow = true
+            o.receiveShadow = true
+          }
+        })
+
         // Set the models initial scale
         theModel.scale.set(2, 2, 2)
 
         // Offset the y position a bit
         theModel.position.y = -1
         theModel.rotation.y = Math.PI
+
+        for (const object of INITIAL_MAP) {
+          initColor(theModel, object.childID, object.mtl)
+        }
 
         // Add the model to the scene
         scene.add(theModel)
@@ -97,7 +128,7 @@ const Reskin: React.FC = () => {
     // 平面缓冲几何体
     const floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1)
     const floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0xff0000,
+      color: 0xeeeeee,
       shininess: 0
     })
     const floor = new THREE.Mesh(floorGeometry, floorMaterial)
@@ -106,12 +137,24 @@ const Reskin: React.FC = () => {
     floor.position.y = -1
     scene.add(floor)
 
+    // 添加控制器
+    controls = new OrbitControls(camera, renderer.domElement)
+    controls.maxPolarAngle = Math.PI / 2
+    controls.minPolarAngle = Math.PI / 3
+    controls.enableDamping = true
+    controls.enablePan = false
+    controls.dampingFactor = 0.1
+    controls.autoRotate = false // Toggle this if you'd like the chair to automatically rotate
+    controls.autoRotateSpeed = 0.2 // 30
+
     animate()
   }
 
   const animate = () => {
-    if (!renderer || !scene || !camera) return
+    if (!renderer || !scene || !camera || !controls) return
     renderer?.render(scene, camera)
+
+    controls.update()
 
     requestAnimationFrame(animate)
 
@@ -136,6 +179,17 @@ const Reskin: React.FC = () => {
     }
 
     return needResize
+  }
+
+  const initColor = (parent: Group, type: string, mtl: THREE.MeshBasicMaterial) => {
+    parent.traverse((o: TraverseEvent) => {
+      if (o.isMesh) {
+        if (o.name.includes(type)) {
+          o.material = mtl
+          o.nameID = type // Set a new property to identify this object
+        }
+      }
+    })
   }
 
   useEffect(() => {
