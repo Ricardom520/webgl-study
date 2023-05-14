@@ -1,0 +1,32 @@
+.controls {
+  position: fixed;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+
+  .tray-slide {
+    display: flex;
+  }
+
+  .tray-swatch {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.options {
+  position: fixed;
+  z-index: 1;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+
+  .option {
+    width: 50px;
+    height: 50px;
+
+    &.active {
+      border-right: 2px solid red;
+    }
+  }
+}

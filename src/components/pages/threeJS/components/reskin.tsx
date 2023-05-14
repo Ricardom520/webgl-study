@@ -4,11 +4,12 @@
  * 教程：
  * https://github.com/JChehe/blog/issues/44
  */
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { AnimationClip, Camera, Group } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import styles from './index.module.less'
 
 interface THEModal {
   animations: AnimationClip
@@ -27,12 +28,79 @@ interface TraverseEvent extends THREE.Event {
   isMesh?: boolean
 }
 
+interface ColorItem {
+  color?: string
+  texture?: string
+  size?: number[]
+  shininess?: number
+}
+
+interface OptionItem {
+  url: string
+  active?: boolean
+  type: string
+}
+
+const colors: ColorItem[] = [
+  {
+    texture: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/wood_.jpg',
+    size: [2, 2, 2],
+    shininess: 60
+  },
+  {
+    texture: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/denim_.jpg',
+    size: [3, 3, 3],
+    shininess: 0
+  },
+  {
+    color: '66533C'
+  },
+  {
+    color: '173A2F'
+  },
+  {
+    color: '153944'
+  },
+  {
+    color: '27548D'
+  },
+  {
+    color: '438AAC'
+  }
+]
+
 const Reskin: React.FC = () => {
+  const TRAY = React.useRef<HTMLDivElement>(null)
   let renderer: THREE.WebGLRenderer | null = null
   let scene: THREE.Scene | null = null
   let camera: THREE.PerspectiveCamera | null = null
-  let theModel = null
+  let theModel: any = null
   let controls: any = null
+  const [options] = useState<OptionItem[]>([
+    {
+      url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/legs.svg',
+      active: true,
+      type: 'legs'
+    },
+    {
+      url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/cushions.svg',
+      type: 'cushions'
+    },
+    {
+      url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/base.svg',
+      type: 'base'
+    },
+    {
+      url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/supports.svg',
+      type: 'supports'
+    },
+    {
+      url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/back.svg',
+      type: 'back'
+    }
+  ])
+  const [curType, setCurType] = useState<string>('legs')
+  const [curStyle, setCurStyle] = useState<ColorItem>(colors[0])
 
   // camera的距离
   const cameraFar = 5
@@ -192,14 +260,106 @@ const Reskin: React.FC = () => {
     })
   }
 
+  const selectSwatch = (colorItem: ColorItem) => {
+    let new_mtl
+    if (colorItem.texture) {
+      const txt = new THREE.TextureLoader().load(colorItem.texture)
+
+      txt.repeat.set((colorItem.size as number[])[0], (colorItem.size as number[])[1])
+      txt.wrapS = THREE.RepeatWrapping
+      txt.wrapT = THREE.RepeatWrapping
+
+      new_mtl = new THREE.MeshPhongMaterial({
+        map: txt,
+        shininess: colorItem.shininess || 0
+      })
+    } else {
+      new_mtl = new THREE.MeshPhongMaterial({
+        color: parseInt('0x' + colorItem.color),
+        shininess: colorItem.shininess || 10
+      })
+    }
+
+    setCurStyle(colorItem)
+    setMaterial(theModel, curType, new_mtl)
+  }
+
+  const selectOption = (option: OptionItem) => {
+    let new_mtl
+    if (curStyle.texture) {
+      const txt = new THREE.TextureLoader().load(curStyle.texture)
+
+      txt.repeat.set((curStyle.size as number[])[0], (curStyle.size as number[])[1])
+      txt.wrapS = THREE.RepeatWrapping
+      txt.wrapT = THREE.RepeatWrapping
+
+      new_mtl = new THREE.MeshPhongMaterial({
+        map: txt,
+        shininess: curStyle.shininess || 0
+      })
+    } else {
+      new_mtl = new THREE.MeshPhongMaterial({
+        color: parseInt('0x' + curStyle.color),
+        shininess: curStyle.shininess || 10
+      })
+    }
+
+    setCurType(option.type)
+    setMaterial(theModel, option.type, new_mtl)
+  }
+
+  const setMaterial = (parent: Group, type: string, mtl: THREE.MeshPhongMaterial) => {
+    parent.traverse((o: TraverseEvent) => {
+      if (o.isMesh && o.nameID) {
+        if (o.nameID === type) {
+          o.material = mtl
+        }
+      }
+    })
+  }
+
   useEffect(() => {
     init()
   }, [])
 
   return (
-    <>
+    <div>
       <canvas width={window.innerWidth} height={window.innerHeight} id='canvas' />
-    </>
+      <div className={styles.controls}>
+        <div id='js-tray' className={styles.tray}>
+          <div className={styles['tray-slide']} id='js-tray-slide' ref={TRAY}>
+            {colors.map((item, index) => {
+              return (
+                <div
+                  key={`color_${index}`}
+                  className={styles['tray-swatch']}
+                  style={
+                    item.texture
+                      ? { backgroundImage: `url(${item.texture})` }
+                      : { background: '#' + item.color }
+                  }
+                  onClick={() => selectSwatch(item)}
+                ></div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.options}>
+        {options.map((item, index) => {
+          return (
+            <div
+              key={`option_${index}`}
+              className={styles.option + ' ' + (item.active ? styles.active : '')}
+              onClick={() => selectOption(item)}
+            >
+              <img src={item.url} alt='' />
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
